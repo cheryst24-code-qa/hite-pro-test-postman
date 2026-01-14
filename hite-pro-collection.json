@@ -188,60 +188,7 @@
 			},
 			"response": []
 		},
-		{
-			"name": "3. Управление RGBW (цвет, если найден)",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"if (!pm.environment.get('rgbw_id')) {",
-							"    pm.request.abort();",
-							"}"
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", () => {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"pm.test(\"RGBW command accepted\", () => {",
-							"    const data = pm.response.json();",
-							"    pm.expect(data).to.have.property('result', 'Command send');",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/devices/{{rgbw_id}}/100?color=00ff00",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"devices",
-						"{{rgbw_id}}",
-						"100"
-					],
-					"query": [
-						{
-							"key": "color",
-							"value": "00ff00"
-						}
-					]
-				}
-			},
-			"response": []
-		},
+	 
 		{
 			"name": "4. Проверить температуру (если найден датчик)",
 			"event": [

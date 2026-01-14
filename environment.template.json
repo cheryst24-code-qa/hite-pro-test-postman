@@ -1,0 +1,9 @@
+{
+     "id": "template",
+     "name": "Environment Template",
+     "values": [
+       { "key": "baseUrl", "value": "https://<внешний_ключ>.connect-profi.ru/rest", "enabled": true },
+       { "key": "username", "value": "<login>", "enabled": true },
+       { "key": "password", "value": "<password>", "enabled": true }
+     ]
+}
