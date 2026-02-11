@@ -1,257 +1,354 @@
 {
-	"info": {
-		"_postman_id": "d4f08275-f1c5-4c9f-be71-9093d6165b23",
-		"name": "Hite Pro Gateway API (Auto-ID)",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "27407529"
-	},
-	"item": [
-		{
-			"name": "0. Получить все устройства и определить ID по типам",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", () => {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"const devices = pm.response.json();",
-							"pm.test(\"Response is array of devices\", () => {",
-							"    pm.expect(devices).to.be.an('array');",
-							"});",
-							"",
-							"// Сбросим все ID на null перед поиском",
-							"['switch_id', 'dimmer_id', 'drive_id', 'motion_id', 'illumination_id',",
-							" 'temperature_id', 'humidity_id', 'checker_id', 'water_id', 'power_id',",
-							" 'transmitter_id', 'rgbw_id'].forEach(key => {",
-							"    pm.environment.set(key, null);",
-							"});",
-							"",
-							"// Группировка: найти первое устройство каждого типа",
-							"devices.forEach(device => {",
-							"    if (!device.type) return;",
-							"    ",
-							"    const type = device.type;",
-							"    let varName = null;",
-							"    ",
-							"    // Определяем имя переменной по типу",
-							"    switch(type) {",
-							"        case 'switch': varName = 'switch_id'; break;",
-							"        case 'dimmer': varName = 'dimmer_id'; break;",
-							"        case 'drive': varName = 'drive_id'; break;",
-							"        case 'motion': varName = 'motion_id'; break;",
-							"        case 'illumination': varName = 'illumination_id'; break;",
-							"        case 'temperature': varName = 'temperature_id'; break;",
-							"        case 'humidity': varName = 'humidity_id'; break;",
-							"        case 'checker': varName = 'checker_id'; break;",
-							"        case 'water': varName = 'water_id'; break;",
-							"        case 'power': varName = 'power_id'; break;",
-							"        case 'transmitter': varName = 'transmitter_id'; break;",
-							"        case 'LED':",
-							"        case 'LED3S/M':",
-							"        case 'RGBW': varName = 'rgbw_id'; break;",
-							"        default: return; // игнорируем неизвестные типы",
-							"    }",
-							"    ",
-							"    // Сохраняем ID, если ещё не сохраняли",
-							"    if (pm.environment.get(varName) === null) {",
-							"        pm.environment.set(varName, device.id.toString());",
-							"        console.log(`Found ${type} → id=${device.id}`);",
-							"    }",
-							"});",
-							"",
-							"// Опционально: вывести найденные ID в консоль",
-							"console.log('Auto-detected device IDs:', {",
-							"    switch: pm.environment.get('switch_id'),",
-							"    dimmer: pm.environment.get('dimmer_id'),",
-							"    rgbw: pm.environment.get('rgbw_id'),",
-							"    motion: pm.environment.get('motion_id'),",
-							"    temperature: pm.environment.get('temperature_id')",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/devices/",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"devices",
-						""
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "1. Проверить состояние датчика движения (если найден)",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"// Пропустить запрос, если motion_id не найден",
-							"if (!pm.environment.get('motion_id')) {",
-							"    pm.request.abort();",
-							"}"
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", () => {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"pm.test(\"Motion sensor status is boolean\", () => {",
-							"    const data = pm.response.json();",
-							"    pm.expect(data).to.have.property('status');",
-							"    pm.expect(data.status).to.be.a('boolean');",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/devices/{{motion_id}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"devices",
-						"{{motion_id}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "2. Управление dimmer (если найден)",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"if (!pm.environment.get('dimmer_id')) {",
-							"    pm.request.abort();",
-							"}"
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", () => {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"pm.test(\"Command accepted\", () => {",
-							"    const data = pm.response.json();",
-							"    pm.expect(data).to.have.property('result', 'Command send');",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/devices/{{dimmer_id}}/60",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"devices",
-						"{{dimmer_id}}",
-						"60"
-					]
-				}
-			},
-			"response": []
-		},
-	 
-		{
-			"name": "4. Проверить температуру (если найден датчик)",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"if (!pm.environment.get('temperature_id')) {",
-							"    pm.request.abort();",
-							"}"
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", () => {",
-							"    pm.response.to.have.status(200);",
-							"});",
-							"",
-							"pm.test(\"Temperature is float in range -40..+50\", () => {",
-							"    const data = pm.response.json();",
-							"    pm.expect(data).to.have.property('status');",
-							"    pm.expect(data.status).to.be.a('number');",
-							"    pm.expect(data.status).to.be.within(-40, 50);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/devices/{{temperature_id}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"devices",
-						"{{temperature_id}}"
-					]
-				}
-			},
-			"response": []
-		}
-	],
-	"auth": {
-		"type": "basic",
-		"basic": [
-			{
-				"key": "username",
-				"value": "{{username}}",
-				"type": "string"
-			},
-			{
-				"key": "password",
-				"value": "{{password}}",
-				"type": "string"
-			}
-		]
-	}
+  "info": {
+    "_postman_id": "d4f08275-f1c5-4c9f-be71-9093d6165b23",
+    "name": "Hite Pro Gateway API (Auto-ID)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "27407529"
+  },
+  "item": [
+    {
+      "name": "0. Получить все устройства и определить ID по типам",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const devices = pm.response.json();",
+              "pm.test(\"Response is array of devices\", () => {",
+              "    pm.expect(devices).to.be.an('array');",
+              "});",
+              "",
+              "// Сбросим все ID на null перед поиском",
+              "['switch_id', 'dimmer_id', 'drive_id', 'motion_id', 'illumination_id',",
+              " 'temperature_id', 'humidity_id', 'checker_id', 'water_id', 'power_id',",
+              " 'transmitter_id', 'rgbw_id'].forEach(key => {",
+              "    pm.environment.set(key, null);",
+              "});",
+              "",
+              "// Группировка: найти первое устройство каждого типа",
+              "devices.forEach(device => {",
+              "    if (!device.type) return;",
+              "    ",
+              "    const type = device.type;",
+              "    let varName = null;",
+              "    ",
+              "    // Определяем имя переменной по типу",
+              "    switch(type) {",
+              "        case 'switch': varName = 'switch_id'; break;",
+              "        case 'dimmer': varName = 'dimmer_id'; break;",
+              "        case 'drive': varName = 'drive_id'; break;",
+              "        case 'motion': varName = 'motion_id'; break;",
+              "        case 'illumination': varName = 'illumination_id'; break;",
+              "        case 'temperature': varName = 'temperature_id'; break;",
+              "        case 'humidity': varName = 'humidity_id'; break;",
+              "        case 'checker': varName = 'checker_id'; break;",
+              "        case 'water': varName = 'water_id'; break;",
+              "        case 'power': varName = 'power_id'; break;",
+              "        case 'transmitter': varName = 'transmitter_id'; break;",
+              "        case 'LED':",
+              "        case 'LED3S/M':",
+              "        case 'RGBW': varName = 'rgbw_id'; break;",
+              "        default: return; // игнорируем неизвестные типы",
+              "    }",
+              "    ",
+              "    // Сохраняем ID, если ещё не сохраняли",
+              "    if (pm.environment.get(varName) === null) {",
+              "        pm.environment.set(varName, device.id.toString());",
+              "        console.log(`Found ${type} → id=${device.id}`);",
+              "    }",
+              "});",
+              "",
+              "// Опционально: вывести найденные ID в консоль",
+              "console.log('Auto-detected device IDs:', {",
+              "    switch: pm.environment.get('switch_id'),",
+              "    dimmer: pm.environment.get('dimmer_id'),",
+              "    rgbw: pm.environment.get('rgbw_id'),",
+              "    motion: pm.environment.get('motion_id'),",
+              "    temperature: pm.environment.get('temperature_id')",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/devices/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "devices",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "1. Проверить состояние датчика движения (если найден)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// ПРОПУСТИТ ЗАПРОС!",
+              "if (!pm.environment.get('motion_id')) {",
+              "    pm.execution.skipRequest();",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Motion sensor status is boolean\", () => {",
+              "    const data = pm.response.json();",
+              "    pm.expect(data).to.have.property('status');",
+              "    pm.expect(data.status).to.be.a('boolean');",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/devices/{{motion_id}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "devices",
+            "{{motion_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Управление dimmer (если найден)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// ПРОПУСТИТ ЗАПРОС!",
+              "if (!pm.environment.get('dimmer_id')) {",
+              "    pm.execution.skipRequest();",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Command accepted\", () => {",
+              "    const data = pm.response.json();",
+              "    pm.expect(data).to.have.property('result', 'Command send');",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/devices/{{dimmer_id}}/60",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "devices",
+            "{{dimmer_id}}",
+            "60"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. Управление RGBW (цвет, если найден)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// ПРОПУСТИТ ЗАПРОС!",
+              "if (!pm.environment.get('rgbw_id')) {",
+              "    pm.execution.skipRequest();",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"RGBW command accepted\", () => {",
+              "    const data = pm.response.json();",
+              "    pm.expect(data).to.have.property('result', 'Command send');",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/devices/{{rgbw_id}}/100?color=00ff00",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "devices",
+            "{{rgbw_id}}",
+            "100"
+          ],
+          "query": [
+            {
+              "key": "color",
+              "value": "00ff00"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4. Проверить температуру (если найден датчик)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// ПРОПУСТИТ ЗАПРОС!",
+              "if (!pm.environment.get('temperature_id')) {",
+              "    pm.execution.skipRequest();",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Temperature is float in range -40..+50\", () => {",
+              "    const data = pm.response.json();",
+              "    pm.expect(data).to.have.property('status');",
+              "    pm.expect(data.status).to.be.a('number');",
+              "    pm.expect(data.status).to.be.within(-40, 50);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/devices/{{temperature_id}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "devices",
+            "{{temperature_id}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{username}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{password}}",
+        "type": "string"
+      }
+    ]
+  }
 }
