@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "test": "newman run hite-pro-collection.json -e environment.json --reporters cli,html --reporter-html-export reports/postman-report.html",
+    "test:clean": "rm -rf reports && mkdir reports && npm test"
+  }
+}

@@ -11,3 +11,5 @@ report.html
 de_modules/
 
 reports/
+newman/
+*.html

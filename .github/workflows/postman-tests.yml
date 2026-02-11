@@ -1,0 +1,56 @@
+name: Postman API Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 * * * *'  # каждый час
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Run Postman tests and generate HTML report
+        run: |
+          mkdir -p reports
+          newman run hite-pro-collection.json \
+            --env-var "baseUrl=https://${{ secrets.HITE_PRO_KEY }}.connect-profi.ru/rest" \
+            --env-var "username=${{ secrets.HITE_PRO_USER }}" \
+            --env-var "password=${{ secrets.HITE_PRO_PASS }}" \
+            --reporters cli,html \
+            --reporter-html-export reports/postman-report.html
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: postman-report
+          path: reports/postman-report.html
+
+      - name: Send Telegram notification on failure
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          MESSAGE="❌ Postman-тесты упали!\\nПодробнее: $RUN_URL"
+          curl -s -X POST \
+            "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
+            -d "chat_id=$TELEGRAM_CHAT_ID" \
+            -d "text=$MESSAGE" \
+            -d "parse_mode=HTML"
