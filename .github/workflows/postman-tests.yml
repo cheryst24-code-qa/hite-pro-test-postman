@@ -1,15 +1,14 @@
-name: Postman API Tests (Postman)
+name: Postman API Tests
 
 on:
   push:
-    branches: [main]
- # schedule:
- #   - cron: "0 9 * * *"
+    branches: [ main ]
+  schedule:
+    - cron: '0 * * * *'
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -19,8 +18,8 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Newman
-        run: npm install -g newman
+      - name: Install Newman and HTML reporter
+        run: npm install -g newman newman-reporter-html
 
       - name: Run Postman tests and generate HTML report
         run: |
@@ -58,7 +57,7 @@ jobs:
             MESSAGE="✅ Postman тесты прошли успешно ($TRIGGER)!"
           else
             RUN_URL="https://github.com/${GITHUB_REPO}/actions/runs/${GITHUB_RUN_ID}"
-            MESSAGE="❌ Postman тесты упали ($TRIGGER)!\Подробности: $RUN_URL"
+            MESSAGE="❌ Postman тесты упали ($TRIGGER)!\\nПодробности: $RUN_URL"
           fi
 
           curl -s -X POST \
