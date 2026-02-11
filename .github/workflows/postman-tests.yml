@@ -1,14 +1,17 @@
-name: HiTE PRO API Tests
+name: Postman API Tests (Postman)
 
 on:
   push:
-    branches: [main]
- # schedule:
- #   - cron: "0 9 * * *"
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+  #  - cron: '0 * * * *'  # каждый час
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -16,25 +19,27 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install Newman
+        run: npm install -g newman
 
-      - name: Run Playwright API tests
-        id: run_tests
-        run: npx playwright test
-        env:
-          HITEPRO_BASE_URL: ${{ secrets.HITEPRO_BASE_URL }}
-          HITEPRO_USER: ${{ secrets.HITEPRO_USER }}
-          HITEPRO_PASS: ${{ secrets.HITEPRO_PASS }}
+      - name: Run Postman tests and generate HTML report
+        run: |
+          mkdir -p reports
+          newman run hite-pro-collection.json \
+            --env-var "baseUrl=https://${{ secrets.HITE_PRO_KEY }}.connect-profi.ru/rest" \
+            --env-var "username=${{ secrets.HITE_PRO_USER }}" \
+            --env-var "password=${{ secrets.HITE_PRO_PASS }}" \
+            --reporters cli,html \
+            --reporter-html-export reports/postman-report.html
 
       - name: Upload HTML report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
-          path: playwright-report/
+          name: postman-report
+          path: reports/postman-report.html
 
       - name: Send Telegram notification
         if: always()
@@ -52,10 +57,10 @@ jobs:
           fi
 
           if [ "${{ steps.run_tests.outcome }}" = "success" ]; then
-            MESSAGE="✅ [Playwright] Тесты HiTE PRO прошли успешно ($TRIGGER)!"
+            MESSAGE="✅ Postman тесты прошли успешно ($TRIGGER)!"
           else
             RUN_URL="https://github.com/${GITHUB_REPO}/actions/runs/${GITHUB_RUN_ID}"
-            MESSAGE="❌ Тесты HiTE PRO упали ($TRIGGER)!\Подробности: $RUN_URL"
+            MESSAGE="❌ Postman тесты упали ($TRIGGER)!\Подробности: $RUN_URL"
           fi
 
           curl -s -X POST \
