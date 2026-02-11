@@ -154,7 +154,7 @@ devices.forEach(device => {
 
 Установка
 ```bash
-  npm install -g newman
+npm install -g newman
 ```
 Запуск локально  
 
@@ -163,7 +163,7 @@ devices.forEach(device => {
 
 1. Создайте окружение:
 ```bash
-  cp environment.template.json environment.json
+cp environment.template.json environment.json
 ```
 2. Заполните environment.json:
 ```json
@@ -182,7 +182,7 @@ devices.forEach(device => {
 ```
 3. Запустите:
 ```bash
-  newman run hite-pro-collection.json -e environment.json
+newman run hite-pro-collection.json -e environment.json
 ```
 | 💡 Newman читает те же .json-файлы, что и Postman.
 
