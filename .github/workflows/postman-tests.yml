@@ -5,6 +5,7 @@ on:
     branches: [ main ]
   # schedule:
   #  - cron: '0 * * * *'
+  workflow_dispatch:  # ЭТА СТРОКА ДАЁТ КНОПКУ "Run workflow"
 
 jobs:
   test:
