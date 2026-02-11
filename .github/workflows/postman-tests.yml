@@ -1,4 +1,4 @@
-name: Postman API Tests (Postman)
+name: HiTE PRO API Tests Postman 
 
 on:
   push:
@@ -57,10 +57,10 @@ jobs:
 
           # Используем правильный ID шага
           if [ "${{ steps.run_postman.outcome }}" = "success" ]; then
-            MESSAGE="✅ Postman тесты прошли успешно ($TRIGGER)!"
+            MESSAGE="✅ HiTE PRO Postman тесты прошли успешно ($TRIGGER)!"
           else
             RUN_URL="https://github.com/${GITHUB_REPO}/actions/runs/${GITHUB_RUN_ID}"
-            MESSAGE="❌ Postman тесты упали ($TRIGGER)!\\nПодробности: $RUN_URL"
+            MESSAGE="❌ HiTE PRO Postman тесты упали ($TRIGGER)!\\nПодробности: $RUN_URL"
           fi
 
           curl -s -X POST \
