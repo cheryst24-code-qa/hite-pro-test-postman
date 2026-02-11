@@ -9,3 +9,5 @@ report.html
 # Кэш и временные файлы
 *.log
 de_modules/
+
+reports/
