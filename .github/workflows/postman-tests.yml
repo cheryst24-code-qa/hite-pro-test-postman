@@ -29,7 +29,7 @@ jobs:
           newman run hite-pro-collection.json \
             --env-var "baseUrl=https://${{ secrets.HITEPRO_BASE_URL }}.connect-profi.ru/rest" \
             --env-var "username=${{ secrets.HITEPRO_USER }}" \
-            --env-var "password=${{ secrets.HITEPRO_USER }}" \
+            --env-var "password=${{ secrets.HITEPRO_PASS }}" \
             --reporters cli,html \
             --reporter-html-export reports/postman-report.html
 
