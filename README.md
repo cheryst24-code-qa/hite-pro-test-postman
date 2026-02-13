@@ -76,7 +76,7 @@ devices.forEach(device => {
 ![Postman Devices](docs/postman-devices.png)  
 
 
->❗Последующие запросы содержат **Pre-request Script**, если устройство не найдено - запрос пропускается, а не падает:
+> 📌 Последующие запросы содержат **Pre-request Script**, если устройство не найдено - запрос пропускается, а не падает:
   ```js
  // devices_id = motion_id || dimmer_id || rgbw_id || temperature_id
   if (!pm.environment.get('devices_id')) {
@@ -144,7 +144,7 @@ devices.forEach(device => {
 - hite-pro-collection.json — основная коллекция,
 - environment.template.json — шаблон окружения.
 
-> ⭕ Вы можете открыть эти файлы в любом редакторе и увидеть структуру тестов.
+> 📌 Вы можете открыть эти файлы в любом редакторе и увидеть структуру тестов.
 
 ---
 
@@ -182,7 +182,7 @@ cp environment.template.json environment.json
 ```bash
 newman run hite-pro-collection.json -e environment.json
 ```
->❗Newman читает те же .json-файлы, что и Postman.
+> 📌 Newman читает те же .json-файлы, что и Postman.
 
 ---
 
@@ -232,7 +232,7 @@ jobs:
       - name: Run API tests
         run: newman run hite-pro-collection.json -e environment.json
 ```
->❗Не забудьте добавить секреты в Settings → Secrets and variables → Actions:
+> 📌 Не забудьте добавить секреты в Settings → Secrets and variables → Actions:
 
 - HITE_PRO_KEY  
 - HITE_PRO_USER  
