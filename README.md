@@ -1,4 +1,4 @@
-🚩 Hite Pro Gateway API - Обучение Postman + Newman
+Hite Pro Gateway API - Обучение Postman + Newman
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -7,7 +7,7 @@
 - Newman - для запуска из командной строки,
 - GitHub Actions - для интеграции в CI/CD.
 
-> 📌 Основная цель - не просто проверить шлюз, а научиться работать с инструментами.
+> Основная цель - не просто проверить шлюз, а научиться работать с инструментами.
 
 ---
 
@@ -27,7 +27,7 @@
   - `{{username}}`
   - `{{password}}`
 
-> 📌 Это означает: все запросы автоматически получают заголовок `Authorization` - дополнительные скрипты не нужны.
+> Это означает: все запросы автоматически получают заголовок `Authorization` - дополнительные скрипты не нужны.
 
 ![Postman Auth](docs/postman-auth.png)  
 
@@ -75,7 +75,7 @@ devices.forEach(device => {
 ![Postman Devices](docs/postman-devices.png)  
 
 
-> 📌 Последующие запросы содержат Pre-request Script, если устройство не найдено - запрос пропускается, а не падает:
+> Последующие запросы содержат Pre-request Script, если устройство не найдено - запрос пропускается, а не падает:
   ```js
  // devices_id = motion_id || dimmer_id || rgbw_id || temperature_id
   if (!pm.environment.get('devices_id')) {
@@ -143,7 +143,7 @@ devices.forEach(device => {
 - hite-pro-collection.json — основная коллекция,
 - environment.template.json — шаблон окружения.
 
-> 📌 Вы можете открыть эти файлы в любом редакторе и увидеть структуру тестов.
+> Вы можете открыть эти файлы в любом редакторе и увидеть структуру тестов.
 
 ---
 
@@ -155,7 +155,7 @@ npm install -g newman
 ```
 3.2. Запуск локально:  
 
-> 📌 Тесты автоматически определяют ID устройств по типам (dimmer, motion, temperature и др.)  
+> Тесты автоматически определяют ID устройств по типам (dimmer, motion, temperature и др.)  
 > и пропускают шаги, если устройство отсутствует.
 
 3.2.1. Создайте окружение:
@@ -181,7 +181,7 @@ cp environment.template.json environment.json
 ```bash
 newman run hite-pro-collection.json -e environment.json
 ```
-> 📌 Newman читает те же .json-файлы, что и Postman.
+> Newman читает те же .json-файлы, что и Postman.
 
 ---
 
@@ -231,7 +231,7 @@ jobs:
       - name: Run API tests
         run: newman run hite-pro-collection.json -e environment.json
 ```
-> 📌 Не забудьте добавить секреты в Settings → Secrets and variables → Actions:
+> Не забудьте добавить секреты в Settings → Secrets and variables → Actions:
 
 - HITE_PRO_KEY  
 - HITE_PRO_USER  
